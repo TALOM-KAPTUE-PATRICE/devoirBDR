@@ -1,0 +1,123 @@
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.31 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2022, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> create database centreFormation;
+Query OK, 1 row affected (0.10 sec)
+
+mysql> use centreFormation;
+Database changed
+mysql> create table(numCniEtu int not null auto_increment primary key,nomEtu varchar(255),prenomEtu varchar(255),dateNaissance date,adresseEtu varchar(255),villeEtu varchar(255),niveauEtu varchar(255));
+ERROR 1064 (42000): Erreur de syntaxe près de '(numCniEtu int not null auto_increment primary key,nomEtu varchar(255),prenomEtu' à la ligne 1
+mysql> create table etudiant(numCniEtu int not null auto_increment primary key,nomEtu varchar(255),prenomEtu varchar(255),dateNaissance date,adresseEtu varchar(255),villeEtu varchar(255),niveauEtu varchar(255));
+Query OK, 0 rows affected (0.34 sec)
+
+mysql> create table specialite(codeSpec varchar(255) not null primary key,nomSpec varchar(255),descSpec varchar(255));
+ERROR 1071 (42000): La clé est trop longue. Longueur maximale: 1000
+mysql> create table specialite(codeSpec varchar(50) not null primary key,nomSpec varchar(255),descSpec varchar(255));
+Query OK, 0 rows affected (0.38 sec)
+
+mysql> create table formation(codeForm varchar(50) not null primary key,titreForm text,dureeForm int,prixForm float);
+Query OK, 0 rows affected (0.31 sec)
+
+mysql> create table session(codeSess varchar(50) not null primary key,nomSess varchar(255),dateDebut date,dateFin date);
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> drop table session;
+Query OK, 0 rows affected (0.11 sec)
+
+mysql> create table session(codeSess varchar(50) not null primary key,nomSess varchar(255),dateDebut date,dateFin date,formation_codeForm varchar(255), foreign key(formation_codeForm) references formation(codeForm));
+Query OK, 0 rows affected, 1 warning (0.14 sec)
+
+mysql> create table inscription(etudiant_numCniEtu int, session_codeSess varchar(255), foreign key(etudiant_numCniEtu) references etudiant(numCniEtu),foreign key(session_codeSess) references session(codeSess), typeCours varchar(255),primarykey(etudiant_numCniEtu,session_codeSess));
+ERROR 1064 (42000): Erreur de syntaxe près de '(etudiant_numCniEtu,session_codeSess))' à la ligne 1
+mysql> create table inscription(etudiant_numCniEtu int, session_codeSess varchar(255), foreign key(etudiant_numCniEtu) references etudiant(numCniEtu),foreign key(session_codeSess) references session(codeSess), primary key());
+ERROR 1064 (42000): Erreur de syntaxe près de '))' à la ligne 1
+mysql> alter table etudiant change numCniEtu numCniEtu varchar(50);
+Query OK, 0 rows affected (0.40 sec)
+Enregistrements: 0  Doublons: 0  Avertissements: 0
+
+mysql> describe etudiant;
++---------------+--------------+------+-----+---------+-------+
+| Field         | Type         | Null | Key | Default | Extra |
++---------------+--------------+------+-----+---------+-------+
+| numCniEtu     | varchar(50)  | NO   | PRI | NULL    |       |
+| nomEtu        | varchar(255) | YES  |     | NULL    |       |
+| prenomEtu     | varchar(255) | YES  |     | NULL    |       |
+| dateNaissance | date         | YES  |     | NULL    |       |
+| adresseEtu    | varchar(255) | YES  |     | NULL    |       |
+| villeEtu      | varchar(255) | YES  |     | NULL    |       |
+| niveauEtu     | varchar(255) | YES  |     | NULL    |       |
++---------------+--------------+------+-----+---------+-------+
+7 rows in set (0.14 sec)
+
+mysql> create table inscription(etudiant_numCniEtu varchar(50), session_codeSess varchar(255), foreign key(etudiant_numCniEtu) references etudiant(numCniEtu),foreign key(session_codeSess) references session(codeSess), primary key(etudiant_numCniEtu,session_codeSess),typeCours varchar(255));
+ERROR 1071 (42000): La clé est trop longue. Longueur maximale: 1000
+mysql> create table inscription(etudiant_numCniEtu varchar(50), session_codeSess varchar(50), foreign key(etudiant_numCniEtu) references etudiant(numCniEtu),foreign key(session_codeSess) references session(codeSess), primary key(etudiant_numCniEtu,session_codeSess),typeCours varchar(255));
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> create table appartenance(specialite_codeSpec varchar(50),formation_codeForm varchar(50),foreign key(specialite_codeSpec) references specialite(codeSpec),foreign key(formation_codeForm) references formation(codeForm), primary key(specialite_codeSpec,formation_codeForm),qualiteCours varchar(255));
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> alter table inscription change typeCours typeCours varchar(255) not null;
+Query OK, 0 rows affected (0.32 sec)
+Enregistrements: 0  Doublons: 0  Avertissements: 0
+
+mysql> describe inscription;
++--------------------+--------------+------+-----+---------+-------+
+| Field              | Type         | Null | Key | Default | Extra |
++--------------------+--------------+------+-----+---------+-------+
+| etudiant_numCniEtu | varchar(50)  | NO   | PRI | NULL    |       |
+| session_codeSess   | varchar(50)  | NO   | PRI | NULL    |       |
+| typeCours          | varchar(255) | NO   |     | NULL    |       |
++--------------------+--------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> alter table session add constraint check_date check(dateFin > dateDebut);
+Query OK, 0 rows affected (0.36 sec)
+Enregistrements: 0  Doublons: 0  Avertissements: 0
+
+mysql> alter table session add active TINYINT NOT NULL DEFAULT 0;
+Query OK, 0 rows affected (0.22 sec)
+Enregistrements: 0  Doublons: 0  Avertissements: 0
+
+mysql> describe sesseion;
+ERROR 1146 (42S02): La table 'centreformation.sesseion' n'existe pas
+mysql> describe session;
++--------------------+--------------+------+-----+---------+-------+
+| Field              | Type         | Null | Key | Default | Extra |
++--------------------+--------------+------+-----+---------+-------+
+| codeSess           | varchar(50)  | NO   | PRI | NULL    |       |
+| nomSess            | varchar(255) | YES  |     | NULL    |       |
+| dateDebut          | date         | YES  |     | NULL    |       |
+| dateFin            | date         | YES  |     | NULL    |       |
+| formation_codeForm | varchar(255) | YES  | MUL | NULL    |       |
+| active             | tinyint      | NO   |     | 0       |       |
++--------------------+--------------+------+-----+---------+-------+
+6 rows in set (0.00 sec)
+
+mysql> shows tables;
+ERROR 1064 (42000): Erreur de syntaxe près de 'shows tables' à la ligne 1
+mysql> show tables;
++---------------------------+
+| Tables_in_centreformation |
++---------------------------+
+| appartenance              |
+| etudiant                  |
+| formation                 |
+| inscription               |
+| session                   |
+| specialite                |
++---------------------------+
+6 rows in set (0.13 sec)
+
+mysql>
